@@ -1,0 +1,21 @@
+[project]
+name = "acpbeestockproject"
+version = "0.1.0"
+description = "Experiments with ACP protocol and beeai"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beeai-sdk==0.0.11",
+    "langchain",
+    "beeai_framework",
+    "langchain_mistralai",
+    "langchain_community",
+    "acp-sdk", # version determined by beeai-sdk
+    "pydantic-settings>=2.7.1",
+    "pydantic>=2.10.6",
+    "pyyaml>=6.0.2",
+    "openai-agents",
+]
+[project.scripts]
+openai-agent = "openai_agent.server:main"
+
