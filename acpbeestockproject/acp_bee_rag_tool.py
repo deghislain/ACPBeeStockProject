@@ -12,8 +12,6 @@ from langchain.vectorstores import Chroma
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_mistralai import MistralAIEmbeddings
 
-
-
 sys.path.insert(0, '../')
 from utils import load_config
 
@@ -122,16 +120,19 @@ class RAGTool(FunctionTool):
     def __init__(self, params_json_schema: dict[str, Any] | None = None) -> None:
         self.params_json_schema = params_json_schema
 
-    def on_invoke_tool(self, context: Any, question: str) -> Awaitable[str]:
+    def on_invoke_tool(self, context: Any, question: str) -> str:
         """
-            Creates a retriever using the content of website.
-                    Args:
-                         context: The tool run context
-                         question: The question which answer need to be retrieved from the document
+        Creates a retriever using the content of a website and use  the retriever
+        to returns the answer to user's question.
 
-                    Returns:
-                        Returns a retriever
-                          """
-        result = get_retriever(self.params_json_schema["links"]).invoke(question)
+        Args:
+            context (Any): The tool run context.
+            question (str): The question to be answered.
 
-        return json.dumps({"answer": "temporary response"})
+        Returns:
+            str: The answer retrieved from the documents.
+        """
+        retriever_result = get_retriever(self.params_json_schema["links"]).invoke(question)
+        final_answer = "\n".join(retriever_result)
+
+        return final_answer
