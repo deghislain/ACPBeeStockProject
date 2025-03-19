@@ -2,17 +2,22 @@ from typing import List
 from acp.server.highlevel import Server, Context
 from beeai_sdk.providers.agent import run_agent_provider
 from beeai_sdk.schemas.text import TextInput, TextOutput
+from agents import Agent, Runner, OpenAIChatCompletionsModel, AsyncOpenAI
 import streamlit as st
-
+import logging
 
 from agents import Agent, Runner
 import asyncio
 from acp_bee_rag_tool import RAGTool
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 async def run(links: List[str], input: str):
     server = Server("rag-agent")
-    print("***********************************running ", input)
+
+    logging.info(f"Responding to the following question: {input} ")
+
     @server.agent(
         name="rag-agent",
         description="Rag Agent to showcase beeai platform extension",
@@ -20,21 +25,27 @@ async def run(links: List[str], input: str):
         output=TextOutput
     )
     async def generate_response(input: TextInput, ctx: Context) -> TextOutput:
-        llm = "ollama:granite3-dense:latest"
+        logging.info(f"Generate response start with input : {input} ")
+        model = OpenAIChatCompletionsModel(
+            model="ollama:granite3-dense:latest",
+            openai_client=AsyncOpenAI(base_url="http://localhost:11434")
+        )
         agent = Agent(
             name="Assistant",
             instructions="You are a helpful assistant",
             tools=[RAGTool({"links": links})],
-            model=llm
+            model=model
         )
         result = await Runner.run(agent, f"Provide an answer for this question {input}")
+        logging.info(f"Model response ***********************result : {result} ")
         return TextOutput(result=result)
 
     await run_agent_provider(server)
 
 
 def main(input: List[str], question: str):
-    asyncio.run(run(input, question))
+    response = asyncio.run(run(input, question))
+    logging.info(f"Model response *********************** : {response} ")
 
 
 if __name__ == "__main__":
@@ -47,5 +58,5 @@ if __name__ == "__main__":
         if links:
             question = st.chat_input(placeholder="Type your question")
             if question:
-                print("***********************************question ", question)
                 main(links, question)
+

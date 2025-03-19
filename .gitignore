@@ -6,6 +6,6 @@ dist/
 wheels/
 *.egg-info
 .idea
-
+*.toml
 # Virtual environments
 .venv
