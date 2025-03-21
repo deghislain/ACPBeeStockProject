@@ -1,11 +1,11 @@
-import json
 import re
 import sys
-from collections.abc import Awaitable
 from typing import Any
 from typing import List
 from typing import Set
+import logging
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 from agents import FunctionTool
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
@@ -68,6 +68,7 @@ def extract_page_content(urls: Set[str]):
 
 
 def store_page_content_in_vector_db(contents: List[str]) -> Chroma:
+    logging.info(f"store_page_content_in_vector_db************************* START: contents = {contents}")
     """
     Store page contents in a vector database using the Chroma library.
 
@@ -100,6 +101,7 @@ def store_page_content_in_vector_db(contents: List[str]) -> Chroma:
 
 
 def get_retriever(links: List[str]):
+    logging.info(f"get_retriever************************* START: links = {links}")
     """
             Creates a retriever using the content of website.
             Args:
@@ -121,6 +123,7 @@ class RAGTool(FunctionTool):
         self.params_json_schema = params_json_schema
 
     def on_invoke_tool(self, context: Any, question: str) -> str:
+        logging.info(f"on_invoke_tool************************* START: links = {question}")
         """
         Creates a retriever using the content of a website and use  the retriever
         to returns the answer to user's question.

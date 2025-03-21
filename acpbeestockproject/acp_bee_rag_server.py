@@ -4,6 +4,7 @@ from agents import Agent, Runner, OpenAIChatCompletionsModel, AsyncOpenAI
 import traceback
 from beeai_framework.errors import FrameworkError
 from acp_bee_rag_io import RagInput, RagOutput
+from acp_bee_rag_prompt import get_system_prompt
 import logging
 import sys
 import asyncio
@@ -31,7 +32,7 @@ async def run():
         links = input.input["links"]
         agent = Agent(
             name="Assistant",
-            instructions="You are a helpful assistant",
+            instructions=get_system_prompt(),
             tools=[RAGTool({"links": links})],
             model=model
         )

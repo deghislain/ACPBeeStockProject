@@ -3,11 +3,26 @@ from typing import List
 from beeai_framework.errors import FrameworkError
 from acp import ClientSession
 from acp.client.sse import sse_client
+import streamlit as st
 import logging
 import traceback
 import sys
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+chat_history = []
+
+
+def display_chat_history():
+    chat_history = st.session_state['chat_history']
+    count = 0
+    for m in chat_history:
+        if count % 2 == 0:
+            output = st.chat_message("user")
+            output.write(m)
+        else:
+            output = st.chat_message("assistant")
+            output.write(m)
+        count += 1
 
 
 async def run_client(question: str, links: List[str]):
@@ -29,13 +44,26 @@ async def run_client(question: str, links: List[str]):
 
 def main(question: str, links: List[str]):
     try:
-        asyncio.run(run_client(question, links))
+        return asyncio.run(run_client(question, links))
     except FrameworkError as e:
         traceback.print_exc()
         sys.exit(e.explain())
 
 
 if __name__ == "__main__":
-    links = ["https://developer.nvidia.com/agentiq"]
-    question = "what is an agent?"
-    asyncio.run(run_client(question, links))
+    links = st.text_area(":blue[Add the sources(URL) for your Q&A session]", placeholder="Paste your links here")
+    if st.button("Submit"):
+        st.session_state['links'] = links
+        st.chat_input(placeholder="Type your question")
+    elif "links" in st.session_state:
+        links = st.session_state['links']
+        if links:
+            question = st.chat_input(placeholder="Type your question")
+            if question:
+                response = main(question, links)
+                if "chat_history" in st.session_state:
+                    chat_history = st.session_state['chat_history']
+                chat_history.extend([question, response])
+                st.session_state['chat_history'] = chat_history
+
+        display_chat_history()
