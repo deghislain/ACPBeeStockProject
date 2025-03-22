@@ -11,10 +11,6 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_mistralai import MistralAIEmbeddings
 
 sys.path.insert(0, '../')
-from utils import load_config
-
-config = load_config()
-dep_config = config["deployment"]
 
 
 def get_valid_urls(links: List[str]) -> Set[str]:
