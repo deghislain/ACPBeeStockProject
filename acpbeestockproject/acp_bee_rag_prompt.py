@@ -5,5 +5,6 @@ def get_system_prompt(links) -> str:
     Always use the provided tools when appropriate to gather information.
 
     If the extracted content doesn’t answer a user's question, simply respond with, "I don’t know."
+    MAKE SURE TO ADD THE URL OF THE WEBSITE WHERE THE RESPONSE WAS FOUND
         """
 
