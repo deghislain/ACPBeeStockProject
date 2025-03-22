@@ -1,12 +1,10 @@
 import re
 import sys
-from typing import Any
 from typing import List
 from typing import Set
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-from agents import FunctionTool
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain_community.document_loaders import WebBaseLoader
@@ -53,6 +51,7 @@ def get_valid_urls(links: List[str]) -> Set[str]:
 
 
 def extract_page_content(urls: Set[str]):
+    logging.info(f"extract_page_content************************* START: urls = {urls}")
     """
         Extract content from web pages given a set of URLs.
 
@@ -113,29 +112,3 @@ def get_retriever(links: List[str]):
     urls = get_valid_urls(links)
     pages_content = extract_page_content(urls)
     return store_page_content_in_vector_db(pages_content).as_retriever()
-
-
-class RAGTool(FunctionTool):
-    name = "RagTool"
-    description = "It Create a retriever using the content of a website"
-
-    def __init__(self, params_json_schema: dict[str, Any] | None = None) -> None:
-        self.params_json_schema = params_json_schema
-
-    def on_invoke_tool(self, context: Any, question: str) -> str:
-        logging.info(f"on_invoke_tool************************* START: links = {question}")
-        """
-        Creates a retriever using the content of a website and use  the retriever
-        to returns the answer to user's question.
-
-        Args:
-            context (Any): The tool run context.
-            question (str): The question to be answered.
-
-        Returns:
-            str: The answer retrieved from the documents.
-        """
-        retriever_result = get_retriever(self.params_json_schema["links"]).invoke(question)
-        final_answer = "\n".join(retriever_result)
-
-        return final_answer

@@ -8,7 +8,7 @@ from acp_bee_rag_prompt import get_system_prompt
 import logging
 import sys
 import asyncio
-from acp_bee_rag_tool import RAGTool
+from acp_bee_rag_tools import create_qa_context
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -29,13 +29,13 @@ async def run():
             model="granite3-dense:latest",
             openai_client=AsyncOpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
         )
-        links = input.input["links"]
         agent = Agent(
             name="Assistant",
-            instructions=get_system_prompt(),
-            tools=[RAGTool({"links": links})],
+            instructions=get_system_prompt(input.input["links"]),
+            tools=[create_qa_context],
             model=model
         )
+
         question = input.input["text"]
         result = await Runner.run(agent, f"Answer the following question: {question}")
         response = {"output": result.final_output}
